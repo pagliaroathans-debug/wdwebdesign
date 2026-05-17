@@ -87,7 +87,7 @@ const contactForm = document.getElementById('contactForm');
 
 // ✏️  Replace YOUR_FORM_ID with the ID from your Formspree dashboard
 // Example: if your endpoint is https://formspree.io/f/abcd1234, use "abcd1234"
-const FORMSPREE_ID = 'https://formspree.io/f/mykvgppn';
+const FORMSPREE_ID = 'mykvgppn';
 
 contactForm.addEventListener('submit', async (e) => {
   e.preventDefault();
