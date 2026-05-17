@@ -82,28 +82,70 @@ function animateCounter(el) {
 }
 
 
-/* --- CONTACT FORM --- */
+/* --- CONTACT FORM (Formspree) --- */
 const contactForm = document.getElementById('contactForm');
 
-contactForm.addEventListener('submit', (e) => {
+// ✏️  Replace YOUR_FORM_ID with the ID from your Formspree dashboard
+// Example: if your endpoint is https://formspree.io/f/abcd1234, use "abcd1234"
+const FORMSPREE_ID = 'https://formspree.io/f/mykvgppn';
+
+contactForm.addEventListener('submit', async (e) => {
   e.preventDefault();
 
-  const btn = contactForm.querySelector('button[type="submit"] span');
-  const originalText = btn.textContent;
+  const btn = contactForm.querySelector('button[type="submit"]');
+  const btnText = btn.querySelector('span');
+  const originalText = btnText.textContent;
 
-  btn.textContent = 'Sending…';
-  contactForm.querySelector('button[type="submit"]').disabled = true;
+  // Loading state
+  btnText.textContent = 'Sending…';
+  btn.disabled = true;
 
-  // Simulate send — replace with your real form handler (Formspree, EmailJS, etc.)
-  setTimeout(() => {
-    btn.textContent = '✓ Message Sent!';
-    contactForm.reset();
+  const formData = new FormData(contactForm);
+
+  try {
+    const response = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    });
+
+    if (response.ok) {
+      // Success
+      btnText.textContent = '✓ Message Sent!';
+      btn.style.background = '#16a34a';
+      contactForm.reset();
+
+      setTimeout(() => {
+        btnText.textContent = originalText;
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 4000);
+
+    } else {
+      // Server error
+      const data = await response.json();
+      const errorMsg = data?.errors?.map(e => e.message).join(', ') || 'Something went wrong.';
+      btnText.textContent = '✗ ' + errorMsg;
+      btn.style.background = '#dc2626';
+
+      setTimeout(() => {
+        btnText.textContent = originalText;
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 4000);
+    }
+
+  } catch (err) {
+    // Network error
+    btnText.textContent = '✗ Network error. Try again.';
+    btn.style.background = '#dc2626';
 
     setTimeout(() => {
-      btn.textContent = originalText;
-      contactForm.querySelector('button[type="submit"]').disabled = false;
-    }, 3000);
-  }, 1200);
+      btnText.textContent = originalText;
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 4000);
+  }
 });
 
 
